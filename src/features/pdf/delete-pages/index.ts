@@ -1,0 +1,1 @@
+export { DeletePagesTool } from './DeletePagesTool';

@@ -30,12 +30,16 @@ self.onmessage = async (e: MessageEvent<WorkerInMessage<PdfToImagesWorkerPayload
 
     self.postMessage({ type: 'PROGRESS', payload: 5 });
 
+    const origin = typeof location !== 'undefined' ? location.origin : '';
     let pdfDocument;
     try {
       const loadingTask = pdfjsLib.getDocument({
         data: new Uint8Array(file.buffer),
-        cMapUrl: 'https://unpkg.com/pdfjs-dist@6.3.289/cmaps/',
+        cMapUrl: `${origin}/pdfjs-dist/cmaps/`,
         cMapPacked: true,
+        standardFontDataUrl: `${origin}/pdfjs-dist/standard_fonts/`,
+        enableXfa: true,
+        useSystemFonts: true,
       });
       pdfDocument = await loadingTask.promise;
     } catch (err) {
@@ -71,7 +75,7 @@ self.onmessage = async (e: MessageEvent<WorkerInMessage<PdfToImagesWorkerPayload
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
 
-      // Render the page
+      // Render the page with font glyphs
       const renderTask = page.render({
         canvasContext: ctx as unknown as CanvasRenderingContext2D,
         viewport,

@@ -38,8 +38,11 @@ self.onmessage = async (e: MessageEvent<WorkerInMessage<PdfToImagesWorkerPayload
         cMapUrl: `${origin}/pdfjs-dist/cmaps/`,
         cMapPacked: true,
         standardFontDataUrl: `${origin}/pdfjs-dist/standard_fonts/`,
+        wasmUrl: `${origin}/pdfjs-dist/wasm/`,
+        disableFontFace: true, // Crucial: draws font glyphs as direct vector paths on OffscreenCanvas, avoiding missing @font-face tofu boxes
+        useSystemFonts: false,
         enableXfa: true,
-        useSystemFonts: true,
+        useWorkerFetch: true,
       });
       pdfDocument = await loadingTask.promise;
     } catch (err) {
@@ -75,7 +78,7 @@ self.onmessage = async (e: MessageEvent<WorkerInMessage<PdfToImagesWorkerPayload
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
 
-      // Render the page with font glyphs
+      // Render the page with path-drawn font glyphs
       const renderTask = page.render({
         canvasContext: ctx as unknown as CanvasRenderingContext2D,
         viewport,

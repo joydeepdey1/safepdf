@@ -4,6 +4,108 @@ import type { WorkerInMessage } from '../../../shared/workers/workerDispatcher';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
+// Polyfill minimal document for Web Worker context if any third-party routine touches globalThis.document
+if (typeof (globalThis as unknown as { document?: unknown }).document === 'undefined') {
+  (globalThis as unknown as { document: unknown }).document = {
+    createElement: (tag: string) => {
+      if (tag === 'canvas') {
+        return new OffscreenCanvas(1, 1);
+      }
+      return {
+        style: {},
+        setAttribute: () => {},
+        getAttribute: () => null,
+        append: () => {},
+        appendChild: () => {},
+      };
+    },
+    createElementNS: (_ns: string, tag: string) => {
+      if (tag === 'canvas') {
+        return new OffscreenCanvas(1, 1);
+      }
+      return {
+        style: {},
+        setAttribute: () => {},
+        getAttribute: () => null,
+        append: () => {},
+        appendChild: () => {},
+      };
+    },
+    body: {
+      append: () => {},
+      appendChild: () => {},
+    },
+    baseURI: self.location?.href || '',
+  };
+}
+
+interface CanvasAndContext {
+  canvas: OffscreenCanvas | null;
+  context: CanvasRenderingContext2D | null;
+}
+
+class OffscreenCanvasFactory {
+  create(width: number, height: number): CanvasAndContext {
+    const w = Math.max(1, Math.round(width));
+    const h = Math.max(1, Math.round(height));
+    const canvas = new OffscreenCanvas(w, h);
+    return {
+      canvas,
+      context: canvas.getContext('2d', { willReadFrequently: true }) as unknown as CanvasRenderingContext2D,
+    };
+  }
+
+  reset(canvasAndContext: CanvasAndContext, width: number, height: number): void {
+    if (!canvasAndContext.canvas) return;
+    canvasAndContext.canvas.width = Math.max(1, Math.round(width));
+    canvasAndContext.canvas.height = Math.max(1, Math.round(height));
+  }
+
+  destroy(canvasAndContext: CanvasAndContext): void {
+    if (canvasAndContext.canvas) {
+      canvasAndContext.canvas.width = 0;
+      canvasAndContext.canvas.height = 0;
+      canvasAndContext.canvas = null;
+      canvasAndContext.context = null;
+    }
+  }
+
+  _createCanvas(width: number, height: number): OffscreenCanvas {
+    return new OffscreenCanvas(Math.max(1, Math.round(width)), Math.max(1, Math.round(height)));
+  }
+}
+
+class OffscreenFilterFactory {
+  addFilter() {
+    return 'none';
+  }
+  addHCMFilter() {
+    return 'none';
+  }
+  addAlphaFilter() {
+    return 'none';
+  }
+  addLuminosityFilter() {
+    return 'none';
+  }
+  addKnockoutFilter() {
+    return 'none';
+  }
+  addHighlightHCMFilter() {
+    return 'none';
+  }
+  addSelectionHCMFilter() {
+    return 'none';
+  }
+  addSelectionFilter() {
+    return 'none';
+  }
+  createSelectionStyle() {
+    return null;
+  }
+  destroy() {}
+}
+
 export interface PdfToImagesWorkerPayload {
   file: { name: string; buffer: ArrayBuffer };
   format: 'png' | 'jpeg';
@@ -43,6 +145,8 @@ self.onmessage = async (e: MessageEvent<WorkerInMessage<PdfToImagesWorkerPayload
         useSystemFonts: false,
         enableXfa: true,
         useWorkerFetch: true,
+        CanvasFactory: OffscreenCanvasFactory,
+        FilterFactory: OffscreenFilterFactory,
       });
       pdfDocument = await loadingTask.promise;
     } catch (err) {

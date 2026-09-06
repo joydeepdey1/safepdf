@@ -25,3 +25,30 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Security, Keys & Credentials
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+*.secret
+credentials*
+secrets*
+id_rsa*
+id_ecdsa*
+id_ed25519*
+
+# Developer Reference, Planning & AI Directing Documents
+AGENTS.md
+STARTUP.md
+REVIEW.md
+ARCHITECTURE.md
+ROADMAP.md
+*.plan.md
+*.plan
+*.test*.md
+.test*.md
+test-*.md
+test_*.md

@@ -82,10 +82,8 @@ npm run build
 
 ---
 
-## Architecture & Documentation
+## Documentation & Security
 
-- [Architecture Overview](ARCHITECTURE.md)
-- [Development Roadmap](ROADMAP.md)
 - [Security & Privacy Guarantees](SECURITY.md)
 - [Release Changelog](CHANGELOG.md)
 

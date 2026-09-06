@@ -33,16 +33,24 @@ export default function RootLayout() {
           )}
         </div>
 
-        <nav className="flex items-center gap-5 text-sm font-medium text-neutral-400">
+        <nav className="flex items-center gap-4 sm:gap-6 text-sm font-medium">
           <Link
-            to="/#tools"
-            className="hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-1 outline-none"
+            to="/tools"
+            className={`transition-colors px-2.5 py-1 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+              location.pathname === '/tools' || location.pathname === '/how-it-works'
+                ? 'text-white bg-neutral-900 border border-neutral-800'
+                : 'text-neutral-400 hover:text-white'
+            }`}
           >
             Tools
           </Link>
           <Link
-            to="/#privacy"
-            className="hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-1 outline-none"
+            to="/privacy"
+            className={`transition-colors px-2.5 py-1 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+              location.pathname === '/privacy'
+                ? 'text-white bg-neutral-900 border border-neutral-800'
+                : 'text-neutral-400 hover:text-white'
+            }`}
           >
             Privacy
           </Link>
@@ -50,7 +58,7 @@ export default function RootLayout() {
             href="https://github.com/joydeepdey1/safepdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-neutral-400 hover:text-white transition-colors p-1 focus-visible:ring-2 focus-visible:ring-blue-500 rounded outline-none"
+            className="text-neutral-400 hover:text-white transition-colors p-1.5 focus-visible:ring-2 focus-visible:ring-blue-500 rounded outline-none"
             aria-label="GitHub Repository"
           >
             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -65,13 +73,26 @@ export default function RootLayout() {
       </main>
 
       <footer className="border-t border-neutral-800/80 bg-neutral-950 py-10 px-6 text-sm text-neutral-500">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2 text-xs text-neutral-400">
             <Shield className="w-4 h-4 text-emerald-400" />
-            <span>100% Client-Side • No Files Stored or Transmitted</span>
+            <span>100% Client-Side • Zero Cloud Uploads • Open Source</span>
           </div>
+
+          <div className="flex items-center gap-6 text-xs text-neutral-400">
+            <Link to="/tools" className="hover:text-white transition-colors">
+              Tools Guide
+            </Link>
+            <Link to="/privacy" className="hover:text-white transition-colors">
+              Privacy Architecture
+            </Link>
+            <Link to="/#tools" className="hover:text-white transition-colors">
+              All Tools
+            </Link>
+          </div>
+
           <p className="text-xs text-neutral-500">
-            &copy; {new Date().getFullYear()} PaperVault. Free, open-source & offline-first.
+            &copy; {new Date().getFullYear()} PaperVault. Free & offline-first.
           </p>
         </div>
       </footer>

@@ -125,13 +125,22 @@ export function CompressPdfTool() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-white text-base">PDF Compressed Successfully!</h3>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30">
-                    -{result.savingsPercent}%
+                  <h3 className="font-bold text-white text-base">
+                    {result.savingsPercent > 0 ? 'PDF Compressed Successfully!' : 'PDF Already Optimized'}
+                  </h3>
+                  <span
+                    className={`text-xs px-2.5 py-0.5 rounded-full font-semibold border ${
+                      result.savingsPercent > 0
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                        : 'bg-neutral-800 text-neutral-300 border-neutral-700'
+                    }`}
+                  >
+                    {result.savingsPercent > 0 ? `-${result.savingsPercent}%` : 'Optimal Size'}
                   </span>
                 </div>
                 <p className="text-xs text-neutral-400 mt-1">
                   {formatFileSize(result.originalSizeBytes)} <ArrowRight className="inline w-3 h-3 mx-1" /> {formatFileSize(result.compressedSizeBytes)}
+                  {result.savingsPercent === 0 && ' (already maximally compressed)'}
                 </p>
               </div>
             </div>
@@ -181,19 +190,19 @@ export function CompressPdfTool() {
                     id: 'extreme',
                     title: 'Extreme',
                     desc: 'Smallest file size',
-                    sub: 'Lower DPI, standard quality',
+                    sub: 'High compression, standard clarity',
                   },
                   {
                     id: 'recommended',
                     title: 'Recommended',
                     desc: 'Balanced size & quality',
-                    sub: 'Good DPI, crisp clarity',
+                    sub: 'Crisp 72 DPI, ideal for sharing',
                   },
                   {
                     id: 'light',
                     title: 'Less',
                     desc: 'Highest quality',
-                    sub: 'Modest reduction, near lossless',
+                    sub: 'Preserves high detail & sharpness',
                   },
                 ].map((item) => (
                   <button

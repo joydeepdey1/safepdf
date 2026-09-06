@@ -122,10 +122,16 @@ export interface CompressedPdfResult {
   savingsPercent: number;
 }
 
-const PRESET_CONFIGS: Record<CompressionPreset, { scale: number; quality: number }> = {
-  extreme: { scale: 1.0, quality: 0.55 },     // ~72 DPI, 55% JPEG
-  recommended: { scale: 1.3, quality: 0.75 }, // ~95 DPI, 75% JPEG
-  light: { scale: 1.6, quality: 0.88 },       // ~115 DPI, 88% JPEG
+interface PresetConfig {
+  scale: number;
+  quality: number;
+  maxDimension: number;
+}
+
+const PRESET_CONFIGS: Record<CompressionPreset, PresetConfig> = {
+  extreme: { scale: 0.8, quality: 0.45, maxDimension: 1280 },     // ~58 DPI, 45% JPEG - aggressive size cut
+  recommended: { scale: 1.0, quality: 0.58, maxDimension: 1600 }, // 72 DPI, 58% JPEG - optimal balance of clarity and size
+  light: { scale: 1.15, quality: 0.68, maxDimension: 1920 },       // ~83 DPI, 68% JPEG - high fidelity, gentle reduction
 };
 
 self.onmessage = async (e: MessageEvent<WorkerInMessage<CompressPdfWorkerPayload>>) => {
@@ -135,7 +141,11 @@ self.onmessage = async (e: MessageEvent<WorkerInMessage<CompressPdfWorkerPayload
 
   try {
     const { file, preset } = message.payload;
-    const { scale, quality } = PRESET_CONFIGS[preset] || PRESET_CONFIGS.recommended;
+    const { scale, quality, maxDimension } = PRESET_CONFIGS[preset] || PRESET_CONFIGS.recommended;
+
+    // CRITICAL: Cache original size before file.buffer is neutered/transferred by pdfjsLib
+    const origSize = file.buffer.byteLength;
+    const originalBytesCopy = new Uint8Array(file.buffer).slice();
 
     self.postMessage({ type: 'PROGRESS', payload: 5 });
 
@@ -174,7 +184,15 @@ self.onmessage = async (e: MessageEvent<WorkerInMessage<CompressPdfWorkerPayload
 
     for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
       const page = await pdfDocument.getPage(pageNum);
-      const viewport = page.getViewport({ scale });
+      const baseViewport = page.getViewport({ scale: 1.0 });
+      const maxDim = Math.max(baseViewport.width, baseViewport.height);
+
+      let pageScale = scale;
+      if (maxDim * pageScale > maxDimension) {
+        pageScale = maxDimension / maxDim;
+      }
+
+      const viewport = page.getViewport({ scale: pageScale });
 
       const canvas = new OffscreenCanvas(Math.round(viewport.width), Math.round(viewport.height));
       const ctx = canvas.getContext('2d');
@@ -201,10 +219,10 @@ self.onmessage = async (e: MessageEvent<WorkerInMessage<CompressPdfWorkerPayload
       });
       const pageBuffer = await compressedBlob.arrayBuffer();
 
-      // Embed into output PDF
+      // Embed into output PDF with exact original point dimensions
       const embeddedJpg = await compressedPdfDoc.embedJpg(pageBuffer);
-      const originalPageWidth = viewport.width / scale;
-      const originalPageHeight = viewport.height / scale;
+      const originalPageWidth = baseViewport.width;
+      const originalPageHeight = baseViewport.height;
 
       const newPage = compressedPdfDoc.addPage([originalPageWidth, originalPageHeight]);
       newPage.drawImage(embeddedJpg, {
@@ -221,17 +239,38 @@ self.onmessage = async (e: MessageEvent<WorkerInMessage<CompressPdfWorkerPayload
 
     self.postMessage({ type: 'PROGRESS', payload: 95 });
 
-    const outputPdfBytes = await compressedPdfDoc.save();
-    const origSize = file.buffer.byteLength;
-    const compSize = outputPdfBytes.byteLength;
-    const savings = Math.max(0, Math.round(((origSize - compSize) / origSize) * 100));
+    const outputPdfBytes = await compressedPdfDoc.save({ useObjectStreams: true });
+    let finalBuffer = outputPdfBytes.buffer as ArrayBuffer;
+    let finalSize = outputPdfBytes.byteLength;
+
+    // Safeguard: Never return a file larger than the original
+    if (finalSize >= origSize) {
+      try {
+        const losslessDoc = await PDFDocument.load(originalBytesCopy.buffer);
+        const losslessBytes = await losslessDoc.save({ useObjectStreams: true });
+        if (losslessBytes.byteLength < origSize) {
+          finalBuffer = losslessBytes.buffer as ArrayBuffer;
+          finalSize = losslessBytes.byteLength;
+        } else {
+          finalBuffer = originalBytesCopy.buffer as ArrayBuffer;
+          finalSize = origSize;
+        }
+      } catch {
+        finalBuffer = originalBytesCopy.buffer as ArrayBuffer;
+        finalSize = origSize;
+      }
+    }
+
+    const savings = origSize > finalSize
+      ? Math.round(((origSize - finalSize) / origSize) * 100)
+      : 0;
 
     const baseName = file.name.replace(/\.[^/.]+$/, '');
     const result: CompressedPdfResult = {
       name: `${baseName}-compressed.pdf`,
-      buffer: outputPdfBytes.buffer as ArrayBuffer,
+      buffer: finalBuffer,
       originalSizeBytes: origSize,
-      compressedSizeBytes: compSize,
+      compressedSizeBytes: finalSize,
       savingsPercent: savings,
     };
 

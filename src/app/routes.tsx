@@ -9,6 +9,7 @@ const SplitTool = React.lazy(() => import('../features/pdf/split').then((m) => (
 const RotateTool = React.lazy(() => import('../features/pdf/rotate').then((m) => ({ default: m.RotateTool })));
 const DeletePagesTool = React.lazy(() => import('../features/pdf/delete-pages').then((m) => ({ default: m.DeletePagesTool })));
 const ImagesToPdfTool = React.lazy(() => import('../features/pdf/images-to-pdf').then((m) => ({ default: m.ImagesToPdfTool })));
+const PdfToImagesTool = React.lazy(() => import('../features/pdf/pdf-to-images').then((m) => ({ default: m.PdfToImagesTool })));
 const ResizeTool = React.lazy(() => import('../features/images/resize').then((m) => ({ default: m.ResizeTool })));
 const CompressTool = React.lazy(() => import('../features/images/compress').then((m) => ({ default: m.CompressTool })));
 const ConvertTool = React.lazy(() => import('../features/images/convert').then((m) => ({ default: m.ConvertTool })));
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
       {
         path: 'pdf/images-to-pdf',
         element: withSuspense(ImagesToPdfTool),
+      },
+      {
+        path: 'pdf/pdf-to-images',
+        element: withSuspense(PdfToImagesTool),
       },
       {
         path: 'image/resize',

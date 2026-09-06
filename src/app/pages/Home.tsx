@@ -12,7 +12,8 @@ import {
   Maximize2,
   Minimize2,
   RefreshCw,
-  Layers
+  Layers,
+  FileImage
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -67,6 +68,14 @@ const allTools: ToolItem[] = [
     category: 'pdf',
     icon: <FileText className="w-6 h-6 text-violet-400" />,
     path: '/pdf/images-to-pdf',
+    badge: 'PDF',
+  },
+  {
+    title: 'PDF to Images',
+    description: 'Convert each page of your PDF into high-resolution PNG or JPEG images.',
+    category: 'pdf',
+    icon: <FileImage className="w-6 h-6 text-fuchsia-400" />,
+    path: '/pdf/pdf-to-images',
     badge: 'PDF',
   },
 

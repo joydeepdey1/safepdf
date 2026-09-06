@@ -13,7 +13,8 @@ import {
   Minimize2,
   RefreshCw,
   Layers,
-  FileImage
+  FileImage,
+  Crop
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -110,6 +111,14 @@ const allTools: ToolItem[] = [
     category: 'image',
     icon: <RefreshCw className="w-6 h-6 text-cyan-400" />,
     path: '/image/convert',
+    badge: 'Image',
+  },
+  {
+    title: 'Crop Image',
+    description: 'Trim photos and graphics with aspect ratio presets or custom freeform selections.',
+    category: 'image',
+    icon: <Crop className="w-6 h-6 text-sky-400" />,
+    path: '/image/crop',
     badge: 'Image',
   },
 ];

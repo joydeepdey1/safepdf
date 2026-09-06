@@ -14,6 +14,7 @@ const CompressPdfTool = React.lazy(() => import('../features/pdf/compress').then
 const ResizeTool = React.lazy(() => import('../features/images/resize').then((m) => ({ default: m.ResizeTool })));
 const CompressTool = React.lazy(() => import('../features/images/compress').then((m) => ({ default: m.CompressTool })));
 const ConvertTool = React.lazy(() => import('../features/images/convert').then((m) => ({ default: m.ConvertTool })));
+const CropTool = React.lazy(() => import('../features/images/crop').then((m) => ({ default: m.CropTool })));
 
 function ToolLoadingFallback() {
   return (
@@ -82,6 +83,10 @@ const router = createBrowserRouter([
       {
         path: 'image/convert',
         element: withSuspense(ConvertTool),
+      },
+      {
+        path: 'image/crop',
+        element: withSuspense(CropTool),
       },
     ],
   },

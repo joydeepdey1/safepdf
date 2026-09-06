@@ -78,6 +78,14 @@ const allTools: ToolItem[] = [
     path: '/pdf/pdf-to-images',
     badge: 'PDF',
   },
+  {
+    title: 'Compress PDF',
+    description: 'Reduce PDF document file size with smart quality and downsampling presets.',
+    category: 'pdf',
+    icon: <Minimize2 className="w-6 h-6 text-amber-400" />,
+    path: '/pdf/compress',
+    badge: 'PDF',
+  },
 
   // Image Tools
   {

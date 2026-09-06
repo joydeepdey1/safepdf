@@ -1,0 +1,1 @@
+export { CompressPdfTool } from './CompressPdfTool';

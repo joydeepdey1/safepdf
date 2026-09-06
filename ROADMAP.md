@@ -1,46 +1,42 @@
 # Roadmap
 
-## Phase 1: Foundation
+## Phase 1: Foundation (Completed)
 - [x] Project initialization (React 19, Vite, TypeScript, Tailwind v4).
 - [x] Tooling setup (ESLint, Prettier, Husky, Vitest, Playwright).
 - [x] Core folder structure & path aliases.
 - [x] Routing & Global Layout shell.
 - [x] Homepage & core documentation.
 
-## Phase 2: Shared File System
+## Phase 2: Shared File System (Completed)
 - [x] Drag & drop interface (`Dropzone.tsx`).
 - [x] File validation (`Zod`, mime detection, size limits).
 - [x] Upload queue and preview generation (`FileQueue.tsx`).
 - [x] Memory lifecycle & Web Worker dispatcher (`workerDispatcher.ts`).
 
-## Phase 3: MVP Tool - Merge PDF
-- [x] Client-side PDF merging with worker-isolated `pdf-lib`.
-- [x] Progress streaming and error propagation.
-- [x] Memory-safe processing and garbage collection.
+## Phase 3: Core PDF & Image Tools (Completed)
+- [x] Merge PDF (`/pdf/merge`)
+- [x] Split PDF (`/pdf/split`)
+- [x] Rotate PDF (`/pdf/rotate`)
+- [x] Delete Pages (`/pdf/delete-pages`)
+- [x] Images to PDF (`/pdf/images-to-pdf`)
+- [x] Resize Image (`/image/resize`)
+- [x] Compress Image (`/image/compress`)
+- [x] Convert Image (`/image/convert`)
 
-## Phase 4: Remaining PDF Tools
-- [x] Split PDF (range & single-page extraction).
-- [x] Rotate PDF (90°, 180°, 270° orientation adjustments).
-- [x] Delete Pages (interval & comma-separated page removal).
-- [x] Images to PDF (format conversion, margins, page sizing).
-
-## Phase 5: Image Tools Suite
-- [x] Resize Image (percentage and explicit pixel dimensions).
-- [x] Compress Image (quality presets and live byte savings feedback).
-- [x] Convert Image (PNG, JPEG, and WebP client-side conversion).
-- [x] Multi-file batch queue processing.
-
-## Phase 6: Polish & Deploy
-- [x] Route-level code splitting & lazy loading (`React.lazy`, `Suspense`).
+## Phase 4: Production Foundation & Code Splitting (Completed)
+- [x] Route-level lazy loading (`React.lazy` + `Suspense`).
 - [x] Comprehensive 8-tool directory on Homepage with category filters.
 - [x] Global layout polish, accessible keyboard dropzone, and SEO metadata.
-- [x] Automated unit test suite with Vitest.
+- [x] Automated unit test suite with Vitest (`src/tests/fileUtils.test.ts`).
 - [x] Zero ESLint errors & zero TypeScript compiler warnings.
 - [x] GitHub Actions CI workflow (`.github/workflows/ci.yml`).
 
-## Stretch Goals (Post-MVP)
-- [ ] OCR (Optical Character Recognition via Tesseract.js / WebAssembly)
-- [ ] Watermarks & Annotations
-- [ ] PDF Protection & Decryption
-- [ ] Client-side PDF Redaction
-- [ ] Digital Signatures
+## Phase 5: Final Tools Scope (Active)
+- [ ] **PDF to Images** (`/pdf/pdf-to-images`): Render PDF pages to PNG/JPEG via `pdfjs-dist` in Web Worker.
+- [ ] **Compress PDF** (`/pdf/compress`): Client-side PDF stream downsampling and optimization.
+- [ ] **Crop Image** (`/image/crop`): Canvas-based interactive image cropping with aspect ratio presets.
+- [ ] **Remove Metadata** (`/image/remove-metadata`): Clean EXIF, GPS, and camera metadata scrubbing.
+
+## Phase 6: Final Deployment (Upcoming)
+- [ ] Production build verification & final audit.
+- [ ] Static deployment to Vercel / Cloudflare Pages.

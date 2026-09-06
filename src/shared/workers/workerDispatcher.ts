@@ -1,8 +1,16 @@
-export type WorkerMessage<T = any> =
-  | { type: 'START_JOB'; payload: T }
+export type WorkerInMessage<TReq = unknown> = {
+  type: 'START_JOB';
+  payload: TReq;
+};
+
+export type WorkerOutMessage<TRes = unknown> =
   | { type: 'PROGRESS'; payload: number }
-  | { type: 'COMPLETE'; payload: ArrayBuffer | Blob | any }
+  | { type: 'COMPLETE'; payload: TRes }
   | { type: 'ERROR'; payload: string };
+
+export type WorkerMessage<TReq = unknown, TRes = unknown> =
+  | WorkerInMessage<TReq>
+  | WorkerOutMessage<TRes>;
 
 export interface WorkerJobOptions<TReq, TRes> {
   workerFactory: () => Worker;
@@ -27,7 +35,7 @@ export function dispatchWorkerJob<TReq, TRes>({
   const worker = workerFactory();
   let isCancelled = false;
 
-  worker.onmessage = (event: MessageEvent<WorkerMessage<TRes>>) => {
+  worker.onmessage = (event: MessageEvent<WorkerOutMessage<TRes>>) => {
     if (isCancelled) return;
 
     const message = event.data;
@@ -54,7 +62,7 @@ export function dispatchWorkerJob<TReq, TRes>({
   };
 
   // Start the job
-  worker.postMessage({ type: 'START_JOB', payload } satisfies WorkerMessage<TReq>);
+  worker.postMessage({ type: 'START_JOB', payload } satisfies WorkerInMessage<TReq>);
 
   // Return a cancellation function
   return () => {

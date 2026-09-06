@@ -9,7 +9,7 @@ import { dispatchWorkerJob } from '../../../shared/workers/workerDispatcher';
 import { downloadBlob } from '../../../shared/utils/file';
 import type { DeletePagesWorkerPayload } from './worker';
 
-export function parsePageSpec(input: string): { pages: number[]; error: string | null } {
+function parsePageSpec(input: string): { pages: number[]; error: string | null } {
   const trimmed = input.trim();
   if (!trimmed) {
     return { pages: [], error: 'Please enter at least one page or range to delete.' };
@@ -134,7 +134,7 @@ export function DeletePagesTool() {
           updateItemStatus(fileItem.id, { status: 'complete', progress: 100 });
 
           // Download output
-          const blob = new Blob([resultBytes as any], { type: 'application/pdf' });
+          const blob = new Blob([resultBytes as unknown as BlobPart], { type: 'application/pdf' });
           const date = new Date().toISOString().split('T')[0];
           downloadBlob(blob, `deleted-pages-${date}.pdf`);
 
@@ -147,10 +147,11 @@ export function DeletePagesTool() {
           cancelWorkerRef.current = null;
         },
       });
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to prepare file for page deletion.';
       setIsProcessing(false);
-      setGlobalError(err.message || 'Failed to prepare file for page deletion.');
-      updateItemStatus(fileItem.id, { status: 'error', error: err.message });
+      setGlobalError(message);
+      updateItemStatus(fileItem.id, { status: 'error', error: message });
     }
   };
 

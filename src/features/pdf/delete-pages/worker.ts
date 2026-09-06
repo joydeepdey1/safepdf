@@ -1,12 +1,12 @@
 import { PDFDocument } from 'pdf-lib';
-import type { WorkerMessage } from '../../../shared/workers/workerDispatcher';
+import type { WorkerInMessage } from '../../../shared/workers/workerDispatcher';
 
 export interface DeletePagesWorkerPayload {
   file: { name: string; buffer: ArrayBuffer };
   pagesToDelete: number[]; // 1-indexed page numbers
 }
 
-self.onmessage = async (e: MessageEvent<WorkerMessage<DeletePagesWorkerPayload>>) => {
+self.onmessage = async (e: MessageEvent<WorkerInMessage<DeletePagesWorkerPayload>>) => {
   const message = e.data;
 
   if (message.type !== 'START_JOB') return;
@@ -20,9 +20,10 @@ self.onmessage = async (e: MessageEvent<WorkerMessage<DeletePagesWorkerPayload>>
 
     try {
       originalPdf = await PDFDocument.load(file.buffer, { ignoreEncryption: false });
-    } catch (err: any) {
+    } catch (err) {
       throw new Error(
-        `Failed to read "${file.name}". The file may be corrupted, password-protected, or not a valid PDF.`
+        `Failed to read "${file.name}". The file may be corrupted, password-protected, or not a valid PDF.`,
+        { cause: err }
       );
     }
 
@@ -66,10 +67,11 @@ self.onmessage = async (e: MessageEvent<WorkerMessage<DeletePagesWorkerPayload>>
 
     // Return complete payload
     self.postMessage({ type: 'COMPLETE', payload: pdfBytes });
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred while deleting pages.';
     self.postMessage({
       type: 'ERROR',
-      payload: error.message || 'An unknown error occurred while deleting pages.',
+      payload: errorMessage,
     });
   }
 };

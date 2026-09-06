@@ -85,7 +85,7 @@ export function ImagesToPdfTool() {
           queue.forEach((item) => updateItemStatus(item.id, { status: 'complete', progress: 100 }));
 
           // Download output PDF
-          const blob = new Blob([resultBytes as any], { type: 'application/pdf' });
+          const blob = new Blob([resultBytes as unknown as BlobPart], { type: 'application/pdf' });
           const date = new Date().toISOString().split('T')[0];
           downloadBlob(blob, `images-${date}.pdf`);
 
@@ -98,10 +98,11 @@ export function ImagesToPdfTool() {
           cancelWorkerRef.current = null;
         },
       });
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to prepare images for conversion.';
       setIsProcessing(false);
-      setGlobalError(err.message || 'Failed to prepare images for conversion.');
-      queue.forEach((item) => updateItemStatus(item.id, { status: 'error', error: err.message }));
+      setGlobalError(message);
+      queue.forEach((item) => updateItemStatus(item.id, { status: 'error', error: message }));
     }
   };
 

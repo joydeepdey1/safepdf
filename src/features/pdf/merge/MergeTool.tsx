@@ -70,7 +70,7 @@ export function MergeTool() {
           queue.forEach(item => updateItemStatus(item.id, { status: 'complete', progress: 100 }));
 
           // Download the result
-          const blob = new Blob([resultBytes as any], { type: 'application/pdf' });
+          const blob = new Blob([resultBytes as unknown as BlobPart], { type: 'application/pdf' });
           const date = new Date().toISOString().split('T')[0];
           downloadBlob(blob, `merged-${date}.pdf`);
 
@@ -84,10 +84,11 @@ export function MergeTool() {
         }
       });
 
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to prepare files for merging.';
       setIsProcessing(false);
-      setGlobalError(err.message || 'Failed to prepare files for merging.');
-      queue.forEach(item => updateItemStatus(item.id, { status: 'error', error: err.message }));
+      setGlobalError(message);
+      queue.forEach(item => updateItemStatus(item.id, { status: 'error', error: message }));
     }
   };
 

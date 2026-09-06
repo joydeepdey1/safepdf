@@ -106,7 +106,7 @@ export function SplitTool() {
           updateItemStatus(fileItem.id, { status: 'complete', progress: 100 });
 
           // Download the result
-          const blob = new Blob([resultBytes as any], { type: 'application/pdf' });
+          const blob = new Blob([resultBytes as unknown as BlobPart], { type: 'application/pdf' });
           const date = new Date().toISOString().split('T')[0];
           downloadBlob(blob, `split-${date}.pdf`);
 
@@ -120,10 +120,11 @@ export function SplitTool() {
         }
       });
 
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to prepare file for splitting.';
       setIsProcessing(false);
-      setGlobalError(err.message || 'Failed to prepare file for splitting.');
-      updateItemStatus(fileItem.id, { status: 'error', error: err.message });
+      setGlobalError(message);
+      updateItemStatus(fileItem.id, { status: 'error', error: message });
     }
   };
 

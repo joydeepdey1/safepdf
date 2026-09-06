@@ -1,4 +1,4 @@
-import type { WorkerMessage } from '../../../shared/workers/workerDispatcher';
+import type { WorkerInMessage } from '../../../shared/workers/workerDispatcher';
 
 export interface ResizeWorkerPayload {
   images: { name: string; buffer: ArrayBuffer; mimeType: string }[];
@@ -25,7 +25,7 @@ function getSafeExportMimeType(mimeType: string): string {
   return 'image/jpeg';
 }
 
-self.onmessage = async (e: MessageEvent<WorkerMessage<ResizeWorkerPayload>>) => {
+self.onmessage = async (e: MessageEvent<WorkerInMessage<ResizeWorkerPayload>>) => {
   const message = e.data;
 
   if (message.type !== 'START_JOB') return;
@@ -50,8 +50,9 @@ self.onmessage = async (e: MessageEvent<WorkerMessage<ResizeWorkerPayload>>) => 
 
       try {
         bitmap = await createImageBitmap(blob);
-      } catch (err: any) {
-        throw new Error(`Failed to decode image "${item.name}": ${err.message || 'Invalid or corrupted image file.'}`);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Invalid or corrupted image file.';
+        throw new Error(`Failed to decode image "${item.name}": ${msg}`, { cause: err });
       }
 
       const origW = bitmap.width;
@@ -121,10 +122,11 @@ self.onmessage = async (e: MessageEvent<WorkerMessage<ResizeWorkerPayload>>) => 
 
     self.postMessage({ type: 'PROGRESS', payload: 100 });
     self.postMessage({ type: 'COMPLETE', payload: results });
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during image resizing.';
     self.postMessage({
       type: 'ERROR',
-      payload: error.message || 'An unknown error occurred during image resizing.',
+      payload: errorMessage,
     });
   }
 };

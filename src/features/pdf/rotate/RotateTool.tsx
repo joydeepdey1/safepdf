@@ -77,7 +77,7 @@ export function RotateTool() {
           updateItemStatus(fileItem.id, { status: 'complete', progress: 100 });
 
           // Download the result
-          const blob = new Blob([resultBytes as any], { type: 'application/pdf' });
+          const blob = new Blob([resultBytes as unknown as BlobPart], { type: 'application/pdf' });
           const date = new Date().toISOString().split('T')[0];
           downloadBlob(blob, `rotated-${date}.pdf`);
 
@@ -90,10 +90,11 @@ export function RotateTool() {
           cancelWorkerRef.current = null;
         },
       });
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to prepare file for rotation.';
       setIsProcessing(false);
-      setGlobalError(err.message || 'Failed to prepare file for rotation.');
-      updateItemStatus(fileItem.id, { status: 'error', error: err.message });
+      setGlobalError(message);
+      updateItemStatus(fileItem.id, { status: 'error', error: message });
     }
   };
 

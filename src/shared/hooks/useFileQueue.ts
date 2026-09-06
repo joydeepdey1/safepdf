@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 export interface QueueItem {
   id: string;
@@ -12,12 +12,16 @@ export interface QueueItem {
 
 export function useFileQueue() {
   const [queue, setQueue] = useState<QueueItem[]>([]);
+  const queueRef = useRef(queue);
 
-  // Cleanup Object URLs when items are removed from queue
+  useEffect(() => {
+    queueRef.current = queue;
+  }, [queue]);
+
+  // Cleanup Object URLs when component unmounts
   useEffect(() => {
     return () => {
-      // Run cleanup on unmount
-      queue.forEach(item => {
+      queueRef.current.forEach(item => {
         if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
       });
     };

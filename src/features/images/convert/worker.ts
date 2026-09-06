@@ -1,4 +1,4 @@
-import type { WorkerMessage } from '../../../shared/workers/workerDispatcher';
+import type { WorkerInMessage } from '../../../shared/workers/workerDispatcher';
 
 export interface ConvertWorkerPayload {
   images: { name: string; buffer: ArrayBuffer; mimeType: string }[];
@@ -34,7 +34,7 @@ function getExtensionForFormat(format: 'png' | 'jpeg' | 'webp'): string {
   }
 }
 
-self.onmessage = async (e: MessageEvent<WorkerMessage<ConvertWorkerPayload>>) => {
+self.onmessage = async (e: MessageEvent<WorkerInMessage<ConvertWorkerPayload>>) => {
   const message = e.data;
 
   if (message.type !== 'START_JOB') return;
@@ -61,8 +61,9 @@ self.onmessage = async (e: MessageEvent<WorkerMessage<ConvertWorkerPayload>>) =>
 
       try {
         bitmap = await createImageBitmap(blob);
-      } catch (err: any) {
-        throw new Error(`Failed to decode image "${item.name}": ${err.message || 'Invalid or corrupted image file.'}`);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Invalid or corrupted image file.';
+        throw new Error(`Failed to decode image "${item.name}": ${msg}`, { cause: err });
       }
 
       const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
@@ -105,10 +106,11 @@ self.onmessage = async (e: MessageEvent<WorkerMessage<ConvertWorkerPayload>>) =>
 
     self.postMessage({ type: 'PROGRESS', payload: 100 });
     self.postMessage({ type: 'COMPLETE', payload: results });
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during image conversion.';
     self.postMessage({
       type: 'ERROR',
-      payload: error.message || 'An unknown error occurred during image conversion.',
+      payload: errorMessage,
     });
   }
 };

@@ -1,14 +1,36 @@
+import React, { Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import RootLayout from './RootLayout';
 import Home from './pages/Home';
-import { MergeTool } from '../features/pdf/merge';
-import { SplitTool } from '../features/pdf/split';
-import { RotateTool } from '../features/pdf/rotate';
-import { DeletePagesTool } from '../features/pdf/delete-pages';
-import { ImagesToPdfTool } from '../features/pdf/images-to-pdf';
-import { ResizeTool } from '../features/images/resize';
-import { CompressTool } from '../features/images/compress';
-import { ConvertTool } from '../features/images/convert';
+
+// Lazy load tools for optimal bundle splitting and performance
+const MergeTool = React.lazy(() => import('../features/pdf/merge').then((m) => ({ default: m.MergeTool })));
+const SplitTool = React.lazy(() => import('../features/pdf/split').then((m) => ({ default: m.SplitTool })));
+const RotateTool = React.lazy(() => import('../features/pdf/rotate').then((m) => ({ default: m.RotateTool })));
+const DeletePagesTool = React.lazy(() => import('../features/pdf/delete-pages').then((m) => ({ default: m.DeletePagesTool })));
+const ImagesToPdfTool = React.lazy(() => import('../features/pdf/images-to-pdf').then((m) => ({ default: m.ImagesToPdfTool })));
+const ResizeTool = React.lazy(() => import('../features/images/resize').then((m) => ({ default: m.ResizeTool })));
+const CompressTool = React.lazy(() => import('../features/images/compress').then((m) => ({ default: m.CompressTool })));
+const ConvertTool = React.lazy(() => import('../features/images/convert').then((m) => ({ default: m.ConvertTool })));
+
+function ToolLoadingFallback() {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh] px-6">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-2 border-neutral-800 border-t-blue-500 rounded-full animate-spin" />
+        <p className="text-sm font-medium text-neutral-400 animate-pulse">Loading tool...</p>
+      </div>
+    </div>
+  );
+}
+
+function withSuspense(Component: React.ComponentType) {
+  return (
+    <Suspense fallback={<ToolLoadingFallback />}>
+      <Component />
+    </Suspense>
+  );
+}
 
 const router = createBrowserRouter([
   {
@@ -17,42 +39,42 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Home />
+        element: <Home />,
       },
       {
         path: 'pdf/merge',
-        element: <MergeTool />
+        element: withSuspense(MergeTool),
       },
       {
         path: 'pdf/split',
-        element: <SplitTool />
+        element: withSuspense(SplitTool),
       },
       {
         path: 'pdf/rotate',
-        element: <RotateTool />
+        element: withSuspense(RotateTool),
       },
       {
         path: 'pdf/delete-pages',
-        element: <DeletePagesTool />
+        element: withSuspense(DeletePagesTool),
       },
       {
         path: 'pdf/images-to-pdf',
-        element: <ImagesToPdfTool />
+        element: withSuspense(ImagesToPdfTool),
       },
       {
         path: 'image/resize',
-        element: <ResizeTool />
+        element: withSuspense(ResizeTool),
       },
       {
         path: 'image/compress',
-        element: <CompressTool />
+        element: withSuspense(CompressTool),
       },
       {
         path: 'image/convert',
-        element: <ConvertTool />
-      }
-    ]
-  }
+        element: withSuspense(ConvertTool),
+      },
+    ],
+  },
 ]);
 
 export function AppRouter() {

@@ -1,4 +1,4 @@
-import type { WorkerMessage } from '../../../shared/workers/workerDispatcher';
+import type { WorkerInMessage } from '../../../shared/workers/workerDispatcher';
 
 export interface CompressWorkerPayload {
   images: { name: string; buffer: ArrayBuffer; mimeType: string }[];
@@ -25,7 +25,7 @@ function resolveMimeType(originalMime: string, requestedFormat?: 'original' | 'j
   return 'image/jpeg';
 }
 
-self.onmessage = async (e: MessageEvent<WorkerMessage<CompressWorkerPayload>>) => {
+self.onmessage = async (e: MessageEvent<WorkerInMessage<CompressWorkerPayload>>) => {
   const message = e.data;
 
   if (message.type !== 'START_JOB') return;
@@ -52,8 +52,9 @@ self.onmessage = async (e: MessageEvent<WorkerMessage<CompressWorkerPayload>>) =
 
       try {
         bitmap = await createImageBitmap(blob);
-      } catch (err: any) {
-        throw new Error(`Failed to decode image "${item.name}": ${err.message || 'Invalid or corrupted image file.'}`);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Invalid or corrupted image file.';
+        throw new Error(`Failed to decode image "${item.name}": ${msg}`, { cause: err });
       }
 
       const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
@@ -99,10 +100,11 @@ self.onmessage = async (e: MessageEvent<WorkerMessage<CompressWorkerPayload>>) =
 
     self.postMessage({ type: 'PROGRESS', payload: 100 });
     self.postMessage({ type: 'COMPLETE', payload: results });
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during image compression.';
     self.postMessage({
       type: 'ERROR',
-      payload: error.message || 'An unknown error occurred during image compression.',
+      payload: errorMessage,
     });
   }
 };

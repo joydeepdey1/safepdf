@@ -1,5 +1,5 @@
 import { PDFDocument } from 'pdf-lib';
-import type { WorkerMessage } from '../../../shared/workers/workerDispatcher';
+import type { WorkerInMessage } from '../../../shared/workers/workerDispatcher';
 
 export interface ImagesToPdfWorkerPayload {
   images: { name: string; buffer: ArrayBuffer; mimeType: string }[];
@@ -24,7 +24,7 @@ async function convertToPngArrayBuffer(buffer: ArrayBuffer, mimeType: string): P
   return await pngBlob.arrayBuffer();
 }
 
-self.onmessage = async (e: MessageEvent<WorkerMessage<ImagesToPdfWorkerPayload>>) => {
+self.onmessage = async (e: MessageEvent<WorkerInMessage<ImagesToPdfWorkerPayload>>) => {
   const message = e.data;
 
   if (message.type !== 'START_JOB') return;
@@ -69,8 +69,9 @@ self.onmessage = async (e: MessageEvent<WorkerMessage<ImagesToPdfWorkerPayload>>
           const converted = await convertToPngArrayBuffer(item.buffer, item.mimeType);
           embeddedImage = await pdfDoc.embedPng(converted);
         }
-      } catch (err: any) {
-        throw new Error(`Failed to process image "${item.name}": ${err.message || 'Invalid or corrupted image format.'}`);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Invalid or corrupted image format.';
+        throw new Error(`Failed to process image "${item.name}": ${msg}`, { cause: err });
       }
 
       const imgWidth = embeddedImage.width;
@@ -129,10 +130,11 @@ self.onmessage = async (e: MessageEvent<WorkerMessage<ImagesToPdfWorkerPayload>>
 
     self.postMessage({ type: 'PROGRESS', payload: 100 });
     self.postMessage({ type: 'COMPLETE', payload: pdfBytes });
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred while converting images to PDF.';
     self.postMessage({
       type: 'ERROR',
-      payload: error.message || 'An unknown error occurred while converting images to PDF.',
+      payload: errorMessage,
     });
   }
 };

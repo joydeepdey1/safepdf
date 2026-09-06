@@ -1,5 +1,5 @@
 import { PDFDocument } from 'pdf-lib';
-import type { WorkerMessage } from '../../../shared/workers/workerDispatcher';
+import type { WorkerInMessage } from '../../../shared/workers/workerDispatcher';
 
 // Input payload matches the ArrayBuffer of the file in queue + requested page range
 export interface SplitWorkerPayload {
@@ -8,7 +8,7 @@ export interface SplitWorkerPayload {
   endPage: number;   // 1-indexed
 }
 
-self.onmessage = async (e: MessageEvent<WorkerMessage<SplitWorkerPayload>>) => {
+self.onmessage = async (e: MessageEvent<WorkerInMessage<SplitWorkerPayload>>) => {
   const message = e.data;
 
   if (message.type !== 'START_JOB') return;
@@ -22,8 +22,11 @@ self.onmessage = async (e: MessageEvent<WorkerMessage<SplitWorkerPayload>>) => {
 
     try {
       originalPdf = await PDFDocument.load(file.buffer, { ignoreEncryption: false });
-    } catch (err: any) {
-      throw new Error(`Failed to read "${file.name}". The file may be corrupted, password-protected, or not a valid PDF.`);
+    } catch (err) {
+      throw new Error(
+        `Failed to read "${file.name}". The file may be corrupted, password-protected, or not a valid PDF.`,
+        { cause: err }
+      );
     }
 
     const totalPages = originalPdf.getPageCount();
@@ -63,7 +66,8 @@ self.onmessage = async (e: MessageEvent<WorkerMessage<SplitWorkerPayload>>) => {
     // Send back the raw bytes
     self.postMessage({ type: 'COMPLETE', payload: pdfBytes });
 
-  } catch (error: any) {
-    self.postMessage({ type: 'ERROR', payload: error.message || 'An unknown error occurred during splitting.' });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during splitting.';
+    self.postMessage({ type: 'ERROR', payload: errorMessage });
   }
 };

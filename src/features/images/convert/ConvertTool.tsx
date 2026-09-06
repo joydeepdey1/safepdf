@@ -101,10 +101,11 @@ export function ConvertTool() {
           cancelWorkerRef.current = null;
         },
       });
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to prepare images for conversion.';
       setIsProcessing(false);
-      setGlobalError(err.message || 'Failed to prepare images for conversion.');
-      queue.forEach((item) => updateItemStatus(item.id, { status: 'error', error: err.message }));
+      setGlobalError(message);
+      queue.forEach((item) => updateItemStatus(item.id, { status: 'error', error: message }));
     }
   };
 

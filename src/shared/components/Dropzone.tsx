@@ -48,10 +48,20 @@ export function Dropzone({ onFilesSelected, accept, multiple = true, className }
     }
   }, [onFilesSelected]);
 
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      inputRef.current?.click();
+    }
+  }, []);
+
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label="Upload files: Drag and drop files here or press Enter to browse files"
       className={cn(
-        "relative w-full h-64 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 ease-out",
+        "relative w-full h-64 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 ease-out focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none select-none",
         isDragActive ? "border-blue-500 bg-blue-500/10" : "border-neutral-700 bg-neutral-900/50 hover:bg-neutral-800 hover:border-neutral-500",
         className
       )}
@@ -60,6 +70,7 @@ export function Dropzone({ onFilesSelected, accept, multiple = true, className }
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={() => inputRef.current?.click()}
+      onKeyDown={handleKeyDown}
     >
       <input
         ref={inputRef}
@@ -68,6 +79,7 @@ export function Dropzone({ onFilesSelected, accept, multiple = true, className }
         accept={accept}
         multiple={multiple}
         onChange={handleChange}
+        aria-hidden="true"
       />
       <div className="flex flex-col items-center gap-4 text-center px-4">
         <div className={cn("p-4 rounded-full transition-colors duration-200", isDragActive ? "bg-blue-500/20 text-blue-400" : "bg-neutral-800 text-neutral-400")}>

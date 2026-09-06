@@ -14,10 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Rotate PDF (`/pdf/rotate`)**: Permanently rotate PDF pages by 90°, 180°, or 270°.
   - **Delete Pages (`/pdf/delete-pages`)**: Remove unwanted pages or ranges using intuitive range syntax.
   - **Images to PDF (`/pdf/images-to-pdf`)**: Convert PNG, JPEG, and WebP images into a formatted PDF document with customizable page sizes and margins.
+  - **PDF to Images (`/pdf/pdf-to-images`)**: Render PDF pages into high-resolution PNG or JPEG images via `pdfjs-dist` with standard fonts and CMap support.
+  - **Compress PDF (`/pdf/compress`)**: Downsample and optimize PDF documents with calibrated presets (Extreme, Recommended, Less) and anti-bloat safeguards.
 - **Complete Image Suite**:
   - **Compress Image (`/image/compress`)**: Client-side canvas compression with quality presets and live byte savings feedback.
   - **Resize Image (`/image/resize`)**: Scale image dimensions by percentage or target width/height with aspect ratio preservation.
   - **Convert Image (`/image/convert`)**: Convert images between PNG, JPEG, and WebP formats entirely offline.
+  - **Crop Image (`/image/crop`)**: Interactive visual crop tool with aspect ratio presets (1:1, 16:9, 4:3, 9:16, 3:2, Freeform) and live dimension readouts.
+  - **Remove Metadata (`/image/remove-metadata`)**: Strip EXIF camera tags, GPS location coordinates, timestamps, and device properties for privacy.
 - **Core Architecture & Performance**:
   - Worker dispatcher with explicit cancellation and error propagation.
   - Route-level code splitting using `React.lazy()` and `Suspense`.

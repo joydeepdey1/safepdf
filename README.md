@@ -14,11 +14,15 @@ PaperVault is a professional, privacy-first, client-side PDF and Image toolkit. 
 - **Rotate PDF (`/pdf/rotate`)**: Permanently adjust page orientation across 90°, 180°, or 270°.
 - **Delete Pages (`/pdf/delete-pages`)**: Remove individual pages or page intervals from your PDF documents.
 - **Images to PDF (`/pdf/images-to-pdf`)**: Convert collections of PNG, JPEG, and WebP images into a formatted PDF document with customizable margins and page layouts (Fit, A4 Portrait, A4 Landscape).
+- **PDF to Images (`/pdf/pdf-to-images`)**: Render each page of a PDF into high-resolution PNG or JPEG images via `pdfjs-dist` with full standard font & CMap support.
+- **Compress PDF (`/pdf/compress`)**: Downsample and optimize PDF documents on-device with calibrated quality presets (Extreme, Recommended, Less) and anti-bloat safeguards.
 
 ### 🖼️ Image Tools
 - **Compress Image (`/image/compress`)**: Optimize image sizes with fine-tuned quality controls and instant byte-savings feedback.
 - **Resize Image (`/image/resize`)**: Scale image dimensions by percentage or target width/height with aspect ratio preservation.
 - **Convert Image (`/image/convert`)**: Convert images seamlessly between PNG, JPEG, and WebP formats entirely offline.
+- **Crop Image (`/image/crop`)**: Interactive visual crop tool with aspect ratio presets (1:1, 16:9, 4:3, 9:16, 3:2, Freeform) and live dimension readouts.
+- **Remove Metadata (`/image/remove-metadata`)**: Strip EXIF camera tags, GPS location coordinates, timestamps, and device properties to protect your privacy.
 
 ---
 

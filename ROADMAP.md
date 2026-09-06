@@ -31,12 +31,12 @@
 - [x] Zero ESLint errors & zero TypeScript compiler warnings.
 - [x] GitHub Actions CI workflow (`.github/workflows/ci.yml`).
 
-## Phase 5: Final Tools Scope (Active)
-- [ ] **PDF to Images** (`/pdf/pdf-to-images`): Render PDF pages to PNG/JPEG via `pdfjs-dist` in Web Worker.
-- [ ] **Compress PDF** (`/pdf/compress`): Client-side PDF stream downsampling and optimization.
-- [ ] **Crop Image** (`/image/crop`): Canvas-based interactive image cropping with aspect ratio presets.
-- [ ] **Remove Metadata** (`/image/remove-metadata`): Clean EXIF, GPS, and camera metadata scrubbing.
+## Phase 5: Final Tools Scope (Completed)
+- [x] **PDF to Images** (`/pdf/pdf-to-images`): Render PDF pages to PNG/JPEG via `pdfjs-dist` in Web Worker.
+- [x] **Compress PDF** (`/pdf/compress`): Client-side PDF stream downsampling and optimization.
+- [x] **Crop Image** (`/image/crop`): Canvas-based interactive image cropping with aspect ratio presets.
+- [x] **Remove Metadata** (`/image/remove-metadata`): Clean EXIF, GPS, and camera metadata scrubbing.
 
-## Phase 6: Final Deployment (Upcoming)
-- [ ] Production build verification & final audit.
+## Phase 6: Final Deployment (Ready)
+- [x] Production build verification & quality audit (0 vulnerabilities, 0 lint errors, 11/11 tests passing).
 - [ ] Static deployment to Vercel / Cloudflare Pages.

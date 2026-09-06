@@ -14,7 +14,8 @@ import {
   RefreshCw,
   Layers,
   FileImage,
-  Crop
+  Crop,
+  ShieldCheck
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -119,6 +120,14 @@ const allTools: ToolItem[] = [
     category: 'image',
     icon: <Crop className="w-6 h-6 text-sky-400" />,
     path: '/image/crop',
+    badge: 'Image',
+  },
+  {
+    title: 'Remove Metadata',
+    description: 'Scrub EXIF data, GPS location coordinates, camera properties, and timestamps.',
+    category: 'image',
+    icon: <ShieldCheck className="w-6 h-6 text-emerald-400" />,
+    path: '/image/remove-metadata',
     badge: 'Image',
   },
 ];

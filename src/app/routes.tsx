@@ -15,6 +15,7 @@ const ResizeTool = React.lazy(() => import('../features/images/resize').then((m)
 const CompressTool = React.lazy(() => import('../features/images/compress').then((m) => ({ default: m.CompressTool })));
 const ConvertTool = React.lazy(() => import('../features/images/convert').then((m) => ({ default: m.ConvertTool })));
 const CropTool = React.lazy(() => import('../features/images/crop').then((m) => ({ default: m.CropTool })));
+const RemoveMetadataTool = React.lazy(() => import('../features/images/remove-metadata').then((m) => ({ default: m.RemoveMetadataTool })));
 
 function ToolLoadingFallback() {
   return (
@@ -87,6 +88,10 @@ const router = createBrowserRouter([
       {
         path: 'image/crop',
         element: withSuspense(CropTool),
+      },
+      {
+        path: 'image/remove-metadata',
+        element: withSuspense(RemoveMetadataTool),
       },
     ],
   },
